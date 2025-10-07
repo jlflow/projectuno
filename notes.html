@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes - SanctiFlow</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="NOTES.css">
+</head>
+<body>
+    <div class="notebook-page">
+        <div class="header">
+            <h2 class="main-title">SanctiFlow</h2>
+            <a href="home.html" class="back-link">← back</a>
+        </div>
+
+        <h1>NOTES</h1>
+
+        <div class="lined-paper">
+            <textarea id="notes-textarea" placeholder="Start writing..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        const textarea = document.getElementById('notes-textarea');
+        
+        // Load saved notes
+        const savedNotes = localStorage.getItem('journalNotes');
+        if (savedNotes) {
+            textarea.value = savedNotes;
+        }
+
+        // Auto-save as user types
+        textarea.addEventListener('input', function() {
+            localStorage.setItem('journalNotes', this.value);
+        });
+    </script>
+</body>
+</html>
