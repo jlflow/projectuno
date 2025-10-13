@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SanctiFlow</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="INDEX.css">
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <div class="auth-container">
@@ -100,151 +99,6 @@
         </div>
     </div>
 
-    <script>
-        // Get elements
-        const loginForm = document.getElementById('login-form');
-        const signupForm = document.getElementById('signup-form');
-        const showSignup = document.getElementById('show-signup');
-        const showLogin = document.getElementById('show-login');
-        const errorMsg = document.getElementById('error-message');
-        const successMsg = document.getElementById('success-message');
-
-        // Switch between forms
-        showSignup.addEventListener('click', () => {
-            loginForm.classList.add('hidden');
-            signupForm.classList.remove('hidden');
-            clearMessages();
-        });
-
-        showLogin.addEventListener('click', () => {
-            signupForm.classList.add('hidden');
-            loginForm.classList.remove('hidden');
-            clearMessages();
-        });
-
-        // Helper functions
-        function showError(message) {
-            errorMsg.textContent = message;
-            errorMsg.style.display = 'block';
-            successMsg.style.display = 'none';
-        }
-
-        function showSuccess(message) {
-            successMsg.textContent = message;
-            successMsg.style.display = 'block';
-            errorMsg.style.display = 'none';
-        }
-
-        function clearMessages() {
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
-        }
-
-        // Get users from memory
-        function getUsers() {
-            const users = {};
-            const keys = Object.keys(window);
-            keys.forEach(key => {
-                if (key.startsWith('user_')) {
-                    users[key] = window[key];
-                }
-            });
-            return users;
-        }
-
-        // Save user to memory
-        function saveUser(email, password, name) {
-            const userKey = 'user_' + email.replace(/[@.]/g, '_');
-            window[userKey] = {
-                email: email,
-                password: password,
-                name: name,
-                loginMethod: 'email'
-            };
-        }
-
-        // Login form submission
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            clearMessages();
-
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            const userKey = 'user_' + email.replace(/[@.]/g, '_');
-            const user = window[userKey];
-
-            if (!user) {
-                showError('No account found with this email. Please sign up first.');
-                return;
-            }
-
-            if (user.password !== password) {
-                showError('Incorrect password. Please try again.');
-                return;
-            }
-
-            // Successful login
-            showSuccess('Login successful! Redirecting...');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        });
-
-        // Signup form submission
-        document.getElementById('signupForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            clearMessages();
-
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('signup-confirm').value;
-
-            if (password !== confirm) {
-                showError('Passwords do not match.');
-                return;
-            }
-
-            if (password.length < 6) {
-                showError('Password must be at least 6 characters long.');
-                return;
-            }
-
-            const userKey = 'user_' + email.replace(/[@.]/g, '_');
-            if (window[userKey]) {
-                showError('An account with this email already exists. Please login.');
-                return;
-            }
-
-            // Save user
-            saveUser(email, password, name);
-            showSuccess('Account created successfully! Redirecting to login...');
-            
-            setTimeout(() => {
-                signupForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                document.getElementById('login-email').value = email;
-                clearMessages();
-            }, 1500);
-        });
-
-        // Google login (simulated)
-        document.getElementById('google-login-btn').addEventListener('click', () => {
-            clearMessages();
-            showSuccess('Google login successful! Redirecting...');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        });
-
-        document.getElementById('google-signup-btn').addEventListener('click', () => {
-            clearMessages();
-            showSuccess('Google signup successful! Redirecting...');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        });
-    </script>
+    <script src="index.js"></script>
 </body>
 </html>
