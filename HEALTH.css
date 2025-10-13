@@ -9,94 +9,66 @@ body {
     background-color: #f5f5f5;
     color: #000000;
     min-height: 100vh;
-    padding: 40px;
+    padding: 20px; /* Reduced from 40px for mobile */
 }
 
 .page-wrapper {
-    max-width: 1400px;
+    width: 100%;
+    max-width: 1400px; /* Limits width on large screens */
     margin: 0 auto;
     background-color: #fff;
-    padding: 40px 60px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-
-.notebook-container {
-    max-width: 600px;
-    margin-left: 0;
+    padding: 20px; /* Reduced from 40px 60px for mobile */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .container {
+    width: 100%;
     max-width: 1400px;
     margin-left: 0;
+    overflow-x: auto; /* Enables horizontal scrolling for table on mobile */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* Reduced from 30px */
 }
 
 .main-title {
     font-size: 14px;
     font-weight: normal;
     letter-spacing: 2px;
-    margin-bottom: 60px;
     text-transform: lowercase;
 }
 
 h1 {
     font-size: 32px;
     font-weight: normal;
-    margin-bottom: 50px;
+    margin-bottom: 30px; /* Reduced from 50px */
     line-height: 1.4;
 }
-
-.button-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.nav-button {
-    background: none;
-    border: none;
-    border-bottom: 1px solid #000000;
-    padding: 12px 0;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    text-align: left;
-    cursor: pointer;
-    transition: padding-left 0.2s ease;
-}
-
-.nav-button:hover {
-    padding-left: 10px;
-}
-
-
-
---------------------------------------------------------------------------------------------------------------------------
-
-
-
-.tracker-container {
-    background: white;
-    padding: 0;
-    border: none;
-    margin-top: 30px;
-}
-
-.tracker-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
 
 .back-link {
     font-size: 12px;
     color: #666;
     text-decoration: none;
-    margin-bottom: 30px;
-    display: inline-block;
-    border: none;
     padding: 8px 0;
 }
 
+.tracker-container {
+    background: white;
+    padding: 0;
+    border: none;
+    margin-top: 20px; /* Reduced from 30px */
+}
+
+.tracker-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Ensures table is wide enough but scrollable on mobile */
+}
 
 .tracker-table th {
     font-weight: normal;
@@ -104,19 +76,17 @@ h1 {
     padding: 10px 8px;
     text-align: left;
     border-bottom: 1px solid #000;
-    height: auto;
-    padding-left: 40px;
+    padding-left: 20px; /* Reduced from 40px */
 }
 
 .tracker-table th:first-child {
     width: 50px;
-    height: auto;
-    padding: 15px 0;
+    padding: 10px 0; /* Adjusted from 15px */
     text-align: left;
 }
 
 .tracker-table td {
-    padding: 8px 8px;
+    padding: 8px;
     text-align: center;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -133,11 +103,96 @@ h1 {
 }
 
 .small-input {
-    width: 70px;
+    width: 100%;
+    max-width: 70px;
     text-align: center;
     font-family: 'Courier New', monospace;
     font-size: 13px;
     padding: 4px 6px;
     border: 1px solid #000;
     border-radius: 3px;
+}
+
+/* Media query for mobile devices (screens smaller than 768px) */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 10px; /* Further reduce padding */
+    }
+
+    .page-wrapper {
+        padding: 10px; /* Reduce padding for mobile */
+    }
+
+    .container {
+        overflow-x: auto; /* Ensure table is scrollable */
+    }
+
+    .main-title {
+        font-size: 12px; /* Slightly smaller */
+    }
+
+    h1 {
+        font-size: 24px; /* Smaller heading */
+        margin-bottom: 20px;
+    }
+
+    .back-link {
+        font-size: 10px;
+        padding: 6px 0;
+    }
+
+    .tracker-table {
+        font-size: 12px; /* Slightly smaller text */
+        min-width: 500px; /* Slightly smaller min-width */
+    }
+
+    .tracker-table th {
+        font-size: 12px;
+        padding: 8px 6px;
+        padding-left: 10px;
+    }
+
+    .tracker-table th:first-child,
+    .tracker-table td:first-child,
+    .day-number {
+        width: 40px;
+        font-size: 12px;
+    }
+
+    .small-input {
+        max-width: 50px; /* Smaller inputs for mobile */
+        font-size: 12px;
+        padding: 3px 4px;
+    }
+}
+
+/* Extra small screens (e.g., very small phones, <480px) */
+@media screen and (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+
+    .page-wrapper {
+        padding: 5px;
+    }
+
+    .main-title {
+        font-size: 10px;
+    }
+
+    h1 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .tracker-table {
+        font-size: 11px;
+        min-width: 450px; /* Further reduce min-width */
+    }
+
+    .small-input {
+        max-width: 45px;
+        font-size: 11px;
+        padding: 2px 3px;
+    }
 }
