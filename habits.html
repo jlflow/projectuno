@@ -6,10 +6,9 @@
     <title>Habitual - SanctiFlow</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="CSS/HABITS.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <script src="auth-check.js"></script>
+    <script src="JS/auth-check.js"></script>
     <div class="page-wrapper">
         <div class="container">
             <div class="header">
@@ -18,26 +17,25 @@
             </div>  
 
             <h1>HABITS</h1>
-            
+
             <div class="tracker-container">
                 <table class="tracker-table">
                     <thead>
                         <tr>
                             <th></th>
-                            <th>Bible Reading</th>
-                            <th>Devotion</th>
-                            <th>Supplements</th>
+                            <th>Make Bed</th>
                             <th>Workout</th>
                             <th>Running</th>
+                            <th>Book Reading</th>
                             <th>Diet</th>
                             <th>Studying</th>
                             <th>Labbing</th>
-                            <th>Make Bed</th>
                             <th>Book Reading</th>
+                            <th>Bible Reading</th>
+                            <th>Devotion</th>
                         </tr>
                     </thead>
                     <tbody id="tracker-body">
-                        
                     </tbody>
                 </table>
             </div>
@@ -49,61 +47,6 @@
         </div>
     </div>
 
-    <script>
-        const days = 31;
-        const columns = 10;
-
-        function loadData() {
-            const saved = localStorage.getItem('habitTrackerData');
-            return saved ? JSON.parse(saved) : {};
-        }
-
-        function saveData(data) {
-            localStorage.setItem('habitTrackerData', JSON.stringify(data));
-        }
-
-        let trackerData = loadData();
-
-        function renderTracker() {
-            const tbody = document.getElementById('tracker-body');
-            tbody.innerHTML = '';
-
-            for (let day = 1; day <= days; day++) {
-                const tr = document.createElement('tr');
-                
-                // Day number cell
-                const dayCell = document.createElement('td');
-                dayCell.className = 'day-number';
-                dayCell.textContent = day;
-                tr.appendChild(dayCell);
-
-                // Checkbox cells
-                for (let col = 0; col < columns; col++) {
-                    const td = document.createElement('td');
-                    td.className = 'checkbox-cell';
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.dataset.day = day;
-                    checkbox.dataset.col = col;
-                    
-                    const key = `${day}-${col}`;
-                    checkbox.checked = trackerData[key] || false;
-                    
-                    checkbox.addEventListener('change', function() {
-                        trackerData[key] = this.checked;
-                        saveData(trackerData);
-                    });
-                    
-                    td.appendChild(checkbox);
-                    tr.appendChild(td);
-                }
-
-                tbody.appendChild(tr);
-            }
-        }
-
-        renderTracker();
-    </script>
+    <script src="JS/habits.js"></script>
 </body>
 </html>
