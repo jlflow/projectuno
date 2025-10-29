@@ -1,4 +1,8 @@
+<<<<<<< HEAD
  * {
+=======
+* {
+>>>>>>> 79314cc2e898598dbbd0658702b7126fb2a56ebe
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -6,24 +10,32 @@
 
         body {
             font-family: 'Courier New', monospace;
-            background-color: #f5f5f5;
+            background-color: #f5f5f5; /* CHANGES COLOR/BACKGROUND: Sets the background color of the body to a light gray (#f5f5f5) */
             color: #000000;
             min-height: 100vh;
             padding: 40px;
         }
 
-        .page-wrapper {
+        .page-wrapper { /* FORMATS A CLASS: The dot (.) indicates this is a class selector that targets elements with class="page-wrapper" */
             width: 100%;
+<<<<<<< HEAD
             max-width: 1800px;
             margin: 0 auto;
             background-color: #fff;
             padding: 60px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+=======
+            max-width: 1400px; /* CHANGES SIZE: Limits the maximum width of the element to 1400 pixels */
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* CSS SYNTAX EXPLANATION: This line uses the box-shadow property followed by a colon, then four values (horizontal offset, vertical offset, blur radius, and color), and ends with a semicolon */
+>>>>>>> 79314cc2e898598dbbd0658702b7126fb2a56ebe
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* CHANGES SPACING/ALIGNMENT: Distributes space between flex items, pushing them to opposite ends */
             align-items: center;
             margin-bottom: 50px;
         }
@@ -49,8 +61,13 @@
             color: #000;
         }
 
+<<<<<<< HEAD
         h1 {
             font-size: 52px;
+=======
+        h1 { /* FORMATS AN ELEMENT: This is an element selector that targets all <h1> heading elements */
+            font-size: 32px;
+>>>>>>> 79314cc2e898598dbbd0658702b7126fb2a56ebe
             font-weight: normal;
             margin-bottom: 60px;
             line-height: 1.3;
@@ -78,9 +95,15 @@
 
         .creator-image {
             flex-shrink: 0;
+<<<<<<< HEAD
             width: 300px;
             height: 300px;
             border: 2px solid #000;
+=======
+            width: 200px;
+            height: 200px;
+            border: 1px solid #000; /* CHANGES BORDERS: Creates a 1-pixel-wide solid black border around the element */
+>>>>>>> 79314cc2e898598dbbd0658702b7126fb2a56ebe
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
