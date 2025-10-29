@@ -102,7 +102,7 @@ h1 {
     color: #000;
 }
 
-#notes-textarea::placeholder {
+#notes-textarea::placeholder {/* FORMATS AN ID: Hash symbol targets element with id="notes-textarea" */
     color: #999;
 }
 
