@@ -59,3 +59,19 @@ h1 {
 .nav-button:hover {
     padding-left: 10px;
 }
+
+.logout-link {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 15px;
+    color: #ff0101;
+    text-decoration: none;
+    padding: 8px 0;
+    transition: color 0.2s ease;
+}
+
+.logout-link:hover {
+    color: #000;
+    text-decoration: underline;
+}
