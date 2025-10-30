@@ -1,0 +1,245 @@
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5; /* CHANGES COLOR/BACKGROUND: Sets the background color of the body to a light gray (#f5f5f5) */
+            color: #000000;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .page-wrapper { /* FORMATS A CLASS: The dot (.) indicates this is a class selector that targets elements with class="page-wrapper" */
+            width: 100%;
+            max-width: 1400px; /* CHANGES SIZE: Limits the maximum width of the element to 1400 pixels */
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* CSS SYNTAX EXPLANATION: This line uses the box-shadow property followed by a colon, then four values (horizontal offset, vertical offset, blur radius, and color), and ends with a semicolon */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between; /* CHANGES SPACING/ALIGNMENT: Distributes space between flex items, pushing them to opposite ends */
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .main-title {
+            font-size: 20px;
+            font-weight: normal;
+            letter-spacing: 3px;
+            text-transform: lowercase;
+        }
+
+        .back-link {
+            font-size: 16px;
+            color: #666;
+            text-decoration: none;
+            padding: 10px 0;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            text-decoration: none;
+            padding-left: 10px;
+            color: #000;
+        }
+
+        h1 { /* FORMATS AN ELEMENT: This is an element selector that targets all <h1> heading elements */
+            font-size: 32px;
+            font-weight: normal;
+            margin-bottom: 60px;
+            line-height: 1.3;
+            letter-spacing: 1px;
+        }
+
+        .creators-container {
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+            margin-top: 50px;
+        }
+
+        .creator {
+            display: flex;
+            gap: 50px;
+            align-items: flex-start;
+            padding: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .creator:hover {
+            transform: translateX(5px);
+        }
+
+        .creator-image {
+            flex-shrink: 0;
+            width: 300px;
+            height: 300px;
+            border: 1px solid #000; /* CHANGES BORDERS: Creates a 1-pixel-wide solid black border around the element */
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .creator-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .creator:hover .creator-image img {
+            transform: scale(1.05);
+        }
+
+        .creator-info {
+            flex: 1;
+            padding-top: 10px;
+        }
+
+        .creator-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .creator-bio {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* Media query for tablets */
+        @media screen and (max-width: 1024px) {
+            body {
+                padding: 30px;
+            }
+
+            .page-wrapper {
+                padding: 40px;
+            }
+
+            h1 {
+                font-size: 42px;
+                margin-bottom: 40px;
+            }
+
+            .creator {
+                gap: 40px;
+            }
+
+            .creator-image {
+                width: 250px;
+                height: 250px;
+            }
+
+            .creator-name {
+                font-size: 24px;
+            }
+
+            .creator-bio {
+                font-size: 16px;
+            }
+        }
+
+        /* Media query for mobile devices */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .page-wrapper {
+                padding: 25px;
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .main-title {
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 32px;
+                margin-bottom: 30px;
+            }
+
+            .creators-container {
+                gap: 50px;
+            }
+
+            .creator {
+                flex-direction: column;
+                gap: 25px;
+                padding: 10px;
+            }
+
+            .creator:hover {
+                transform: none;
+            }
+
+            .creator-image {
+                width: 100%;
+                max-width: 280px;
+                height: 280px;
+                margin: 0 auto;
+            }
+
+            .creator-name {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+
+            .creator-bio {
+                font-size: 16px;
+                line-height: 1.7;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .page-wrapper {
+                padding: 20px;
+            }
+
+            .main-title {
+                font-size: 14px;
+            }
+
+            .back-link {
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 28px;
+                margin-bottom: 25px;
+            }
+
+            .creators-container {
+                gap: 40px;
+            }
+
+            .creator-image {
+                max-width: 240px;
+                height: 240px;
+            }
+
+            .creator-name {
+                font-size: 20px;
+            }
+
+            .creator-bio {
+                font-size: 15px;
+            }
+        }
