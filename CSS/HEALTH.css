@@ -9,15 +9,15 @@ body {
     background-color: #f5f5f5;
     color: #000000;
     min-height: 100vh;
-    padding: 20px; /* Reduced from 40px for mobile */
+    padding: 20px;
 }
 
 .page-wrapper {
     width: 100%;
-    max-width: 1400px; /* Limits width on large screens */
+    max-width: 1400px;
     margin: 0 auto;
     background-color: #fff;
-    padding: 20px; /* Reduced from 40px 60px for mobile */
+    padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -25,15 +25,15 @@ body {
     width: 100%;
     max-width: 1400px;
     margin-left: 0;
-    overflow-x: auto; /* Enables horizontal scrolling for table on mobile */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px; /* Reduced from 30px */
+    margin-bottom: 20px;
 }
 
 .main-title {
@@ -46,7 +46,7 @@ body {
 h1 {
     font-size: 32px;
     font-weight: normal;
-    margin-bottom: 30px; /* Reduced from 50px */
+    margin-bottom: 30px;
     line-height: 1.4;
 }
 
@@ -61,13 +61,13 @@ h1 {
     background: white;
     padding: 0;
     border: none;
-    margin-top: 20px; /* Reduced from 30px */
+    margin-top: 20px;
 }
 
 .tracker-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px; /* Ensures table is wide enough but scrollable on mobile */
+    min-width: 600px;
 }
 
 .tracker-table th {
@@ -76,12 +76,12 @@ h1 {
     padding: 10px 8px;
     text-align: left;
     border-bottom: 1px solid #000;
-    padding-left: 50px; /* Reduced from 40px */
+    padding-left: 50px;
 }
 
 .tracker-table th:first-child {
     width: 50px;
-    padding: 10px 0; /* Adjusted from 15px */
+    padding: 10px 0;
     text-align: left;
 }
 
@@ -111,28 +111,87 @@ h1 {
     padding: 4px 6px;
     border: 1px solid #000;
     border-radius: 3px;
+    transition: border-color 0.2s ease;
+}
+
+/* Color coding for inputs based on performance */
+.sleep-input.bad,
+.water-input.bad,
+.steps-input.bad,
+.mood-input.bad {
+    border: 2px solid #FFADAD;
+    background-color: #FFF5F5;
+}
+
+.sleep-input.okay,
+.water-input.okay,
+.steps-input.okay,
+.mood-input.okay {
+    border: 2px solid #FDFFB6;
+    background-color: #FFFEF0;
+}
+
+.sleep-input.good,
+.water-input.good,
+.steps-input.good,
+.mood-input.good {
+    border: 2px solid #CAFFBF;
+    background-color: #F0FFF0;
+}
+
+/* Wellness Score Cell */
+.wellness-cell {
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+}
+
+.wellness-score {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    border: 2px solid transparent;
+}
+
+.wellness-score.bad {
+    border: 2px solid #FFADAD;
+    background-color: #FFF5F5;
+    color: #d32f2f;
+}
+
+.wellness-score.okay {
+    border: 2px solid #FDFFB6;
+    background-color: #FFFEF0;
+    color: #f57c00;
+}
+
+.wellness-score.good {
+    border: 2px solid #CAFFBF;
+    background-color: #F0FFF0;
+    color: #388e3c;
 }
 
 /* Media query for mobile devices (screens smaller than 768px) */
 @media screen and (max-width: 768px) {
     body {
-        padding: 10px; /* Further reduce padding */
+        padding: 10px;
     }
 
     .page-wrapper {
-        padding: 10px; /* Reduce padding for mobile */
+        padding: 10px;
     }
 
     .container {
-        overflow-x: auto; /* Ensure table is scrollable */
+        overflow-x: auto;
     }
 
     .main-title {
-        font-size: 12px; /* Slightly smaller */
+        font-size: 12px;
     }
 
     h1 {
-        font-size: 24px; /* Smaller heading */
+        font-size: 24px;
         margin-bottom: 20px;
     }
 
@@ -142,8 +201,8 @@ h1 {
     }
 
     .tracker-table {
-        font-size: 12px; /* Slightly smaller text */
-        min-width: 500px; /* Slightly smaller min-width */
+        font-size: 12px;
+        min-width: 500px;
     }
 
     .tracker-table th {
@@ -160,9 +219,14 @@ h1 {
     }
 
     .small-input {
-        max-width: 50px; /* Smaller inputs for mobile */
+        max-width: 50px;
         font-size: 12px;
         padding: 3px 4px;
+    }
+
+    .wellness-score {
+        padding: 3px 8px;
+        font-size: 12px;
     }
 }
 
@@ -187,12 +251,17 @@ h1 {
 
     .tracker-table {
         font-size: 11px;
-        min-width: 450px; /* Further reduce min-width */
+        min-width: 450px;
     }
 
     .small-input {
         max-width: 45px;
         font-size: 11px;
         padding: 2px 3px;
+    }
+
+    .wellness-score {
+        padding: 2px 6px;
+        font-size: 11px;
     }
 }
