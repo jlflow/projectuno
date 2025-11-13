@@ -157,3 +157,59 @@ document.getElementById('google-signup-btn').addEventListener('click', () => {
         window.location.href = 'home.html';
     }, 1500);
 });
+
+/*
+=== PROJECT PART 3 ANNOTATIONS ===
+
+REQUIREMENT 1: Link HTML to JavaScript
+- Line: <script src="JS/index.js"></script>
+
+REQUIREMENT 2.1.A: Form Validation
+- Password matching: Lines 85-92
+- Password length (min 6): Lines 94-97
+- Duplicate email check: Lines 100-103
+- Password correctness: Lines 73-76
+
+REQUIREMENT 2.1.B: Change Formatting
+- Toggle forms: Lines 13-17, 19-23
+- Show/hide messages: Lines 29-33, 35-39, 41-45
+
+REQUIREMENT 2.1.C: Change HTML Content
+- Error message text: Line 31
+- Success message text: Line 36
+- Pre-fill login email: Line 115
+
+REQUIREMENT 2.1.D: Add/Remove Elements
+- It is in habits.js Javascript where I have Checkboxes where you can turn on or off: Line 77-94
+
+REQUIREMENT 2.1.E: Action on Submit/Input
+- Login submit: Lines 60-82
+- Signup submit: Lines 86-118
+
+REQUIREMENT 2.1.F: Secret Password Section
+- Not implemented
+
+REQUIREMENT 2.1.G: Two Additional Components
+- localStorage user data: Lines 47-62
+- Session timestamps: Lines 64-71
+
+REQUIREMENT 2.2.A: DOM Element Selection
+- Lines 4-9
+
+REQUIREMENT 2.2.B: Event Listeners
+- Form toggle clicks: Lines 13, 19
+- Submit events: Lines 60, 86
+- Google auth clicks: Lines 121, 129
+
+REQUIREMENT 3: Code Formatting
+- N/A (general formatting)
+
+REQUIREMENT 4.A: Variables
+- const variables: Lines 62-63
+
+REQUIREMENT 4.B: Control Flow
+- if statements for validation: Lines 70-77
+
+REQUIREMENT 4.C: Functions
+- showError() function: Lines 27-33
+*/
