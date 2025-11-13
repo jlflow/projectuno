@@ -8,10 +8,6 @@
     <link rel="stylesheet" href="CSS/HOME.css">
 </head>
 <body>
-    <script src="JS/auth-check.js"></script>
-    <h2 class="main-title">SanctiFlow</h2>
-    <a href="#" class="logout-link" onclick="logout()">Logout</a>
-    <h3 id="user-name" class="welcome-text"></h3>
 
         <!-- DASHBOARD POTENTIAL PLACEMENT -->
 
@@ -48,7 +44,42 @@
         
         </div>
         -->
-        
+
+    <script src="JS/auth-check.js"></script>
+    
+    <!-- SECRET BUTTON: This clickable title triggers the secret password popup -->
+    <h2 class="main-title" id="secret-button" onclick="showSecretPopup()">SanctiFlow</h2>
+    <a href="#" class="logout-link" onclick="logout()">Logout</a>
+    <h3 id="user-name" class="welcome-text"></h3>
+
+    <!-- SECRET PASSWORD POPUP: Modal dialog for password entry -->
+    <div id="secret-popup" class="secret-modal">
+        <div class="secret-content">
+            <span class="close-btn" onclick="closeSecretPopup()">&times;</span>
+            <h2>Sancti Secret Society</h2>
+            <!-- Password input field with hint placeholder -->
+            <input 
+                type="password" 
+                id="secret-password" 
+                placeholder="Iykyk"
+                onkeypress="checkEnter(event)"
+            >
+            <button onclick="checkPassword()">Enter</button>
+            <!-- Error message displayed for incorrect passwords -->
+            <p id="error-message" class="error-message"></p>
+        </div>
+    </div>
+
+    <!-- GIF POPUP: Modal that displays after correct password -->
+    <div id="gif-popup" class="secret-modal">
+        <div class="gif-content">
+            <span class="close-btn" onclick="closeGifPopup()">&times;</span>
+            <h2>Welcome to the Big Leagues 🎉</h2>
+            <!-- REPLACE THIS URL WITH YOUR OWN GIF -->
+            <img src="https://media.giphy.com/media/g9582DNuQppxC/giphy.gif" alt="Secret GIF" class="secret-gif">
+        </div>
+    </div>
+
     <div class="container">
         <h1>It ain't easy, but it is simple...</h1>
 
@@ -75,6 +106,82 @@
             </div>
         </div>
     </div>
+
+    <!-- SECRET SECTION JAVASCRIPT -->
+    <script>
+        // FUNCTION: showSecretPopup()
+        // PURPOSE: Displays the password entry modal when "SanctiFlow" is clicked
+        // HOW IT WORKS: Changes the CSS display property from 'none' to 'block'
+        function showSecretPopup() {
+            document.getElementById('secret-popup').style.display = 'block';
+        }
+
+        // FUNCTION: closeSecretPopup()
+        // PURPOSE: Hides the password entry modal
+        // HOW IT WORKS: Sets display to 'none' and clears any error messages
+        function closeSecretPopup() {
+            document.getElementById('secret-popup').style.display = 'none';
+            document.getElementById('error-message').textContent = '';
+            document.getElementById('secret-password').value = '';
+        }
+
+        // FUNCTION: checkPassword()
+        // PURPOSE: Validates the entered password against the correct password
+        // HOW IT WORKS: 
+        //   1. Retrieves the password value from the input field
+        //   2. Compares it to the correct password "67"
+        //   3. If correct: closes password popup and shows GIF popup
+        //   4. If incorrect: displays error message and shakes the input field
+        function checkPassword() {
+            const password = document.getElementById('secret-password').value;
+            const correctPassword = '67'; // THE SECRET PASSWORD
+            
+            if (password === correctPassword) {
+                closeSecretPopup();
+                document.getElementById('gif-popup').style.display = 'block';
+            } else {
+                // Display error message for incorrect password
+                document.getElementById('error-message').textContent = 'Access Denied! Wrong password.';
+                // Add shake animation to provide visual feedback
+                document.getElementById('secret-password').classList.add('shake');
+                // Remove shake animation after it completes
+                setTimeout(() => {
+                    document.getElementById('secret-password').classList.remove('shake');
+                }, 500);
+            }
+        }
+
+        // FUNCTION: closeGifPopup()
+        // PURPOSE: Hides the GIF modal after viewing
+        // HOW IT WORKS: Sets display property to 'none'
+        function closeGifPopup() {
+            document.getElementById('gif-popup').style.display = 'none';
+        }
+
+        // FUNCTION: checkEnter()
+        // PURPOSE: Allows users to submit password by pressing Enter key
+        // HOW IT WORKS: Detects keypress event and triggers checkPassword() if Enter is pressed
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        // EVENT LISTENER: Click outside modal to close
+        // PURPOSE: Improves user experience by allowing modal dismissal via background click
+        // HOW IT WORKS: Detects clicks on the modal background (not the content) and closes popup
+        window.onclick = function(event) {
+            const secretPopup = document.getElementById('secret-popup');
+            const gifPopup = document.getElementById('gif-popup');
+            if (event.target === secretPopup) {
+                closeSecretPopup();
+            }
+            if (event.target === gifPopup) {
+                closeGifPopup();
+            }
+        }
+    </script>
+
     <script src="dashboard.js"></script>
 </body>
 </html>
