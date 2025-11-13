@@ -186,8 +186,8 @@ REQUIREMENT 2.1.E: Action on Submit/Input
 - Login submit: Lines 60-82
 - Signup submit: Lines 86-118
 
-REQUIREMENT 2.1.F: Secret Password Section
-- Not implemented
+REQUIREMENT 2.1.F: Secret Password Section - Press on the Sanctiflow button on the top right corner of the homepage (home.html), password: 67
+- It is in home.html: Line 50 - 81, 111 - 183
 
 REQUIREMENT 2.1.G: Two Additional Components
 - localStorage user data: Lines 47-62
