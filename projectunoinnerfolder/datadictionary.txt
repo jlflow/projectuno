@@ -1,0 +1,153 @@
+# DATA DICTIONARY - SANCTIFLOW HABIT TRACKER
+
+## Database: database.db
+SQLite database file storing all application data
+
+---
+
+## TABLE 1: habits
+
+**Purpose:** Stores daily habit tracking data with completion status  
+**Primary Key:** habit_id  
+**Joinable Field:** day_number (joins with health_entries table)
+
+| Column Name   | Data Type | Constraints | Description |
+|--------------|-----------|-------------|-------------|
+| habit_id | INTEGER | PRIMARY KEY, AUTOINCREMENT | Unique identifier for each habit entry |
+| habit_name | TEXT | NOT NULL | Name of the habit being tracked (e.g., "Make Bed", "Workout") |
+| day_number | INTEGER | NOT NULL, CHECK (1-31), UNIQUE with column_index | Day of the month (1-31) |
+| column_index | INTEGER | NOT NULL, CHECK (0-9), UNIQUE with day_number | Column position in habit grid (0-9) |
+| is_completed | INTEGER | DEFAULT 0, CHECK (0 or 1) | Completion status: 0 = not completed, 1 = completed |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP | ISO8601 timestamp when record was created |
+| updated_at | TEXT | DEFAULT CURRENT_TIMESTAMP | ISO8601 timestamp when record was last updated |
+
+**Indexes:**
+- Primary: habit_id
+- Unique constraint on (day_number, column_index) prevents duplicate entries
+
+**Sample Data:**
+```
+habit_id | habit_name    | day_number | column_index | is_completed
+---------|---------------|------------|--------------|-------------
+1        | Make Bed      | 1          | 0            | 1
+2        | Workout       | 1          | 1            | 0
+3        | Make Bed      | 2          | 0            | 1
+```
+
+---
+
+## TABLE 2: health_entries
+
+**Purpose:** Stores daily health metrics and calculated wellness scores  
+**Primary Key:** entry_id  
+**Joinable Field:** day_number (joins with habits table)
+
+| Column Name | Data Type | Constraints | Description |
+|------------|-----------|-------------|-------------|
+| entry_id | INTEGER | PRIMARY KEY, AUTOINCREMENT | Unique identifier for each health entry |
+| day_number | INTEGER | NOT NULL, UNIQUE | Day of the month (1-31), unique per entry |
+| weight | REAL | None | Body weight in pounds (decimal allowed) |
+| sleep_hours | REAL | CHECK (0-24) | Hours of sleep (decimal allowed, e.g., 7.5) |
+| water_cups | REAL | CHECK (0-20) | Cups of water consumed (decimal allowed) |
+| steps_km | REAL | CHECK (>= 0) | Distance walked in kilometers (decimal allowed) |
+| mood_rating | INTEGER | CHECK (1-5) | Mood rating from 1 (worst) to 5 (best) |
+| wellness_score | INTEGER | CHECK (4-12) | Calculated wellness score based on metrics |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP | ISO8601 timestamp when record was created |
+| updated_at | TEXT | DEFAULT CURRENT_TIMESTAMP | ISO8601 timestamp when record was last updated |
+
+**Indexes:**
+- Primary: entry_id
+- Unique constraint on day_number (one health entry per day)
+
+**Sample Data:**
+```
+entry_id | day_number | weight | sleep_hours | water_cups | steps_km | mood_rating | wellness_score
+---------|------------|--------|-------------|------------|----------|-------------|---------------
+1        | 1          | 165.5  | 7.5         | 8.0        | 6.2      | 4           | 11
+2        | 2          | 165.2  | 6.0         | 7.0        | 5.5      | 3           | 9
+```
+
+---
+
+## RELATIONSHIPS
+
+### habits ↔ health_entries (One-to-Many via day_number)
+
+**Relationship Type:** One health entry can have many habit entries for the same day  
+**Join Field:** day_number  
+**Join Example:**
+```sql
+SELECT h.day_number, h.wellness_score, COUNT(hab.is_completed) as completed_habits
+FROM health_entries h
+LEFT JOIN habits hab ON h.day_number = hab.day_number AND hab.is_completed = 1
+GROUP BY h.day_number;
+```
+
+**Purpose:** Allows correlation between daily health metrics and habit completion rates
+
+---
+
+## DATA TYPES USED
+
+1. **INTEGER**
+   - Purpose: Whole numbers (IDs, counts, boolean values, ratings)
+   - Examples: habit_id, day_number, is_completed, mood_rating
+   - Storage: Variable length (1-8 bytes depending on value)
+
+2. **REAL**
+   - Purpose: Floating-point decimal numbers
+   - Examples: weight, sleep_hours, water_cups, steps_km
+   - Storage: 8 bytes
+   - Precision: 15 significant digits
+
+3. **TEXT**
+   - Purpose: Variable-length character strings
+   - Examples: habit_name, created_at, updated_at
+   - Storage: Variable (UTF-8 encoding)
+   - Note: SQLite stores dates/times as TEXT in ISO8601 format
+
+---
+
+## DATA VALIDATION RULES
+
+### habits table:
+- day_number must be between 1 and 31
+- column_index must be between 0 and 9
+- is_completed must be 0 or 1
+- Combination of (day_number, column_index) must be unique
+
+### health_entries table:
+- day_number must be unique (one entry per day)
+- mood_rating must be between 1 and 5
+- wellness_score must be between 4 and 12
+- sleep_hours must be between 0 and 24
+- water_cups must be between 0 and 20
+- steps_km must be non-negative (>= 0)
+
+---
+
+## CALCULATED FIELDS
+
+### wellness_score (health_entries table)
+**Calculation:** Sum of individual metric scores (4-12 range)
+- Sleep score: 1-3 points based on hours
+- Water score: 1-3 points based on cups
+- Steps score: 1-3 points based on kilometers
+- Mood score: Uses mood_rating directly (1-5, but contributes 1-3 to wellness)
+**Formula:** sleep_score + water_score + steps_score + mood_score
+
+---
+
+## TIMESTAMP FIELDS
+
+All timestamp fields use SQLite's CURRENT_TIMESTAMP function:
+- Format: ISO8601 (YYYY-MM-DD HH:MM:SS)
+- Timezone: UTC
+- Auto-generated on INSERT
+- Auto-updated on UPDATE (for updated_at fields)
+
+---
+
+**Document Version:** 1.0  
+**Last Updated:** [Current Date]  
+**Created By:** [Your Name]
