@@ -133,31 +133,6 @@ document.getElementById('signupForm').addEventListener('submit', (e) => {
     }, 1500);
 });
 
-// Google login (simulated)
-document.getElementById('google-login-btn').addEventListener('click', () => {
-    clearMessages();
-    // Simulate Google login
-    const googleEmail = 'user@gmail.com';
-    const googleName = 'Google User';
-    setCurrentUser(googleEmail, googleName);
-    showSuccess('Google login successful! Redirecting...');
-    setTimeout(() => {
-        window.location.href = 'home.html';
-    }, 1500);
-});
-
-document.getElementById('google-signup-btn').addEventListener('click', () => {
-    clearMessages();
-    // Simulate Google signup
-    const googleEmail = 'user@gmail.com';
-    const googleName = 'Google User';
-    setCurrentUser(googleEmail, googleName);
-    showSuccess('Google signup successful! Redirecting...');
-    setTimeout(() => {
-        window.location.href = 'home.html';
-    }, 1500);
-});
-
 /*
 === PROJECT PART 3 ANNOTATIONS ===
 
