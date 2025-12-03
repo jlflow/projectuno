@@ -270,40 +270,34 @@ function populateInitialHabits() {
     });
 }
 
-// ============================================================================
-// CRUD OPERATIONS - ALL ENDPOINTS BELOW DEMONSTRATE CREATE, READ, UPDATE, DELETE
-// ============================================================================
+// Add this endpoint to your server.js file
+// Place it near the other UPDATE endpoints
 
 // ============================================================================
-// CRUD: CREATE - Add new records to database
-// REQUIREMENT: (10) Populate at least part of one table using form input
+// CRUD: UPDATE - Update habit name by column index
 // ============================================================================
-// This endpoint receives data from HTML forms and inserts into database
-// User interaction: User checks/unchecks habits on webpage → saved here
+// Updates ALL habits with the same column_index to the new name
+// This prevents duplicate habit names in the database
 // ============================================================================
-app.post('/api/habits', (req, res) => {
-    const { day_number, column_index, is_completed, habit_name } = req.body;
+app.put('/api/habits/name-by-column', (req, res) => {
+    const { column_index, new_name } = req.body;
 
-    // UPSERT operation: Insert if new, update if exists
-    // DATA MANIPULATION: Updates timestamp automatically
+    // UPDATE all records with this column_index
     const sql = `
-        INSERT INTO habits (habit_name, day_number, column_index, is_completed, updated_at)
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(day_number, column_index) 
-        DO UPDATE SET 
-            is_completed = excluded.is_completed,
-            habit_name = excluded.habit_name,
-            updated_at = CURRENT_TIMESTAMP
+        UPDATE habits 
+        SET habit_name = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE column_index = ?
     `;
 
-    db.run(sql, [habit_name, day_number, column_index, is_completed ? 1 : 0], function(err) {
+    db.run(sql, [new_name, column_index], function(err) {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
+            console.log(`✓ CRUD: UPDATE - Changed column ${column_index} to "${new_name}" (${this.changes} records)`);
             res.json({ 
                 success: true, 
-                id: this.lastID,
-                message: '✓ CRUD: CREATE - Habit saved from form input'
+                changes: this.changes,
+                message: 'Habit name updated successfully for all days'
             });
         }
     });

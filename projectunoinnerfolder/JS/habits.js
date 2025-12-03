@@ -30,17 +30,32 @@ async function loadAllData() {
         
         // Convert database format to our tracker format
         trackerData = {};
-        const habitNamesSet = new Set();
+        
+        // Build habit names array based on column_index (0-9)
+        // Initialize with default habits first
+        habitNames = [...defaultHabits];
+        
+        // Get the most recent habit name for each column
+        const columnNames = {};
         
         habits.forEach(habit => {
             const key = `${habit.day_number}-${habit.column_index}`;
             trackerData[key] = habit.is_completed === 1;
-            habitNamesSet.add(habit.habit_name);
+            
+            // Keep track of the most recent habit name for this column
+            // (or just use the first one we encounter, since they should all be the same)
+            if (habit.column_index >= 0 && habit.column_index < 10) {
+                if (!columnNames[habit.column_index]) {
+                    columnNames[habit.column_index] = habit.habit_name;
+                }
+            }
         });
         
-        // Update habit names if we have them from database
-        if (habitNamesSet.size > 0) {
-            habitNames = Array.from(habitNamesSet);
+        // Update habit names array with names from database
+        for (let col = 0; col < 10; col++) {
+            if (columnNames[col]) {
+                habitNames[col] = columnNames[col];
+            }
         }
         
         renderHeaders();
@@ -78,16 +93,16 @@ async function saveCheckbox(day, col, isChecked) {
     }
 }
 
-// Save habit name to database
-async function updateHabitNameInDB(oldName, newName) {
+// Save habit name to database - updates ALL rows with this column_index
+async function updateHabitNameInDB(columnIndex, newName) {
     try {
-        const response = await fetch(`${API_URL}/api/habits/name`, {
+        const response = await fetch(`${API_URL}/api/habits/name-by-column`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                old_name: oldName,
+                column_index: columnIndex,
                 new_name: newName
             })
         });
@@ -143,7 +158,7 @@ function renderTracker() {
             
             checkbox.addEventListener('change', function() {
                 trackerData[key] = this.checked;
-                saveCheckbox(day, col, this.checked); // Save to database
+                saveCheckbox(day, col, this.checked);
             });
             
             td.appendChild(checkbox);
@@ -179,9 +194,8 @@ function saveHabitName() {
     const newName = input.value.trim();
     
     if (newName && currentEditingIndex !== null) {
-        const oldName = habitNames[currentEditingIndex];
         habitNames[currentEditingIndex] = newName;
-        updateHabitNameInDB(oldName, newName); // Save to database
+        updateHabitNameInDB(currentEditingIndex, newName);
         renderHeaders();
     }
     
@@ -212,37 +226,3 @@ document.addEventListener('keydown', function(e) {
 
 // Load data when page loads
 window.addEventListener('load', loadAllData);
-
-// Load all data from database when page loads
-async function loadAllData() {
-    try {
-        // Fetch habits from database
-        const response = await fetch(`${API_URL}/api/habits`);
-        const habits = await response.json();
-        
-        // Convert database format to our tracker format
-        trackerData = {};
-        
-        // Build habit names array based on column_index (0-9)
-        // Initialize with default habits first
-        habitNames = [...defaultHabits];
-        
-        habits.forEach(habit => {
-            const key = `${habit.day_number}-${habit.column_index}`;
-            trackerData[key] = habit.is_completed === 1;
-            
-            // Update habit name for this column index
-            // Only update if we have a valid column index
-            if (habit.column_index >= 0 && habit.column_index < 10) {
-                habitNames[habit.column_index] = habit.habit_name;
-            }
-        });
-        
-        renderHeaders();
-        renderTracker();
-        
-    } catch (error) {
-        console.error('Error loading data:', error);
-        alert('Could not connect to database. Make sure server is running!');
-    }
-}
