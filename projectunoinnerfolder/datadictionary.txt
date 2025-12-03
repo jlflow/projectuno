@@ -151,3 +151,43 @@ All timestamp fields use SQLite's CURRENT_TIMESTAMP function:
 **Document Version:** 1.0  
 **Last Updated:** [Current Date]  
 **Created By:** [Your Name]
+
+---
+
+## TABLE 3: users
+
+**Purpose:** Stores user account information for authentication  
+**Primary Key:** user_id  
+**Joinable Field:** user_id (can join with future tables tracking user-specific data)
+
+| Column Name | Data Type | Constraints | Description |
+|------------|-----------|-------------|-------------|
+| user_id | INTEGER | PRIMARY KEY, AUTOINCREMENT | Unique identifier for each user |
+| name | TEXT | NOT NULL | User's display name |
+| email | TEXT | NOT NULL, UNIQUE, CHECK (contains @) | Email address used as username |
+| password | TEXT | NOT NULL | User password (plain text for educational purposes) |
+| country | TEXT | None | Country selected during signup |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP | Account creation timestamp |
+| last_login | TEXT | None | Timestamp of last successful login |
+
+**Indexes:**
+- Primary: user_id
+- Unique constraint on email (one account per email address)
+
+**Sample Data:**
+```
+user_id | name          | email              | password  | country | created_at
+--------|---------------|--------------------|-----------|---------|-------------------
+1       | John Smith    | john@example.com   | pass123   | canada  | 2024-01-15 10:00:00
+2       | Sarah Johnson | sarah@example.com  | secure456 | usa     | 2024-01-16 14:30:00
+```
+
+---
+
+## RELATIONSHIPS (UPDATED)
+
+### Future Enhancement: users ↔ habits (One-to-Many)
+Could add user_id to habits table to track which user owns which habits
+
+### Future Enhancement: users ↔ health_entries (One-to-Many)
+Could add user_id to health_entries table for multi-user support

@@ -1,3 +1,6 @@
+// API URL - matches your server
+const API_URL = 'http://localhost:3000';
+
 // Get elements
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
@@ -37,66 +40,57 @@ function clearMessages() {
     successMsg.style.display = 'none';
 }
 
-// Get all users from localStorage
-function getUsers() {
-    const usersJSON = localStorage.getItem('sanctiflow_users');
-    return usersJSON ? JSON.parse(usersJSON) : {};
-}
-
-// Save user to localStorage
-function saveUser(email, password, name) {
-    const users = getUsers();
-    users[email] = {
-        email: email,
-        password: password,
-        name: name,
-        loginMethod: 'email'
-    };
-    localStorage.setItem('sanctiflow_users', JSON.stringify(users));
-}
-
-// Set current logged-in user
-function setCurrentUser(email, name) {
+// Set current logged-in user (still use localStorage for session)
+function setCurrentUser(userId, name, email, country) {
     const currentUser = {
-        email: email,
+        userId: userId,
         name: name,
+        email: email,
+        country: country,
         loggedIn: true,
         loginTime: new Date().toISOString()
     };
     localStorage.setItem('sanctiflow_currentUser', JSON.stringify(currentUser));
 }
 
-// Login form submission
-document.getElementById('loginForm').addEventListener('submit', (e) => {
+// Login form submission - NOW USES DATABASE
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     clearMessages();
 
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    const users = getUsers();
-    const user = users[email];
+    try {
+        const response = await fetch(`${API_URL}/api/users/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
 
-    if (!user) {
-        showError('No account found with this email. Please sign up first.');
-        return;
+        const result = await response.json();
+
+        if (result.success) {
+            // Save user session
+            setCurrentUser(result.user.userId, result.user.name, result.user.email, result.user.country);
+            
+            showSuccess('Login successful! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'home.html';
+            }, 1500);
+        } else {
+            showError(result.message || 'Invalid email or password.');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showError('Could not connect to server. Make sure server is running!');
     }
-
-    if (user.password !== password) {
-        showError('Incorrect password. Please try again.');
-        return;
-    }
-
-    // Successful login
-    setCurrentUser(email, user.name);
-    showSuccess('Login successful! Redirecting...');
-    setTimeout(() => {
-        window.location.href = 'home.html';
-    }, 1500);
 });
 
-// Signup form submission
-document.getElementById('signupForm').addEventListener('submit', (e) => {
+// Signup form submission - NOW USES DATABASE
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     clearMessages();
 
@@ -104,7 +98,9 @@ document.getElementById('signupForm').addEventListener('submit', (e) => {
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const confirm = document.getElementById('signup-confirm').value;
+    const country = document.getElementById('country').value;
 
+    // Validation
     if (password !== confirm) {
         showError('Passwords do not match.');
         return;
@@ -115,76 +111,36 @@ document.getElementById('signupForm').addEventListener('submit', (e) => {
         return;
     }
 
-    const users = getUsers();
-    if (users[email]) {
-        showError('An account with this email already exists. Please login.');
+    if (!country) {
+        showError('Please select a country.');
         return;
     }
 
-    // Save user
-    saveUser(email, password, name);
-    showSuccess('Account created successfully! Redirecting to login...');
-    
-    setTimeout(() => {
-        signupForm.classList.add('hidden');
-        loginForm.classList.remove('hidden');
-        document.getElementById('login-email').value = email;
-        clearMessages();
-    }, 1500);
+    try {
+        const response = await fetch(`${API_URL}/api/users/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password, country })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Account created successfully! Redirecting to login...');
+            
+            setTimeout(() => {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                document.getElementById('login-email').value = email;
+                clearMessages();
+            }, 1500);
+        } else {
+            showError(result.message || 'Could not create account.');
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        showError('Could not connect to server. Make sure server is running!');
+    }
 });
-
-/*
-=== PROJECT PART 3 ANNOTATIONS ===
-
-REQUIREMENT 1: Link HTML to JavaScript
-- Line: <script src="JS/index.js"></script>
-
-REQUIREMENT 2.1.A: Form Validation
-- Password matching: Lines 85-92
-- Password length (min 6): Lines 94-97
-- Duplicate email check: Lines 100-103
-- Password correctness: Lines 73-76
-
-REQUIREMENT 2.1.B: Change Formatting
-- Toggle forms: Lines 13-17, 19-23
-- Show/hide messages: Lines 29-33, 35-39, 41-45
-
-REQUIREMENT 2.1.C: Change HTML Content
-- Error message text: Line 31
-- Success message text: Line 36
-- Pre-fill login email: Line 115
-
-REQUIREMENT 2.1.D: Add/Remove Elements
-- It is in habits.js Javascript where I have Checkboxes where you can turn on or off: Line 77-94
-
-REQUIREMENT 2.1.E: Action on Submit/Input
-- Login submit: Lines 60-82
-- Signup submit: Lines 86-118
-
-REQUIREMENT 2.1.F: Secret Password Section - Press on the Sanctiflow button on the top right corner of the homepage (home.html), password: 67
-- It is in home.html: Line 50 - 81, 111 - 183
-
-REQUIREMENT 2.1.G: Two Additional Components
-- localStorage user data: Lines 47-62
-- Session timestamps: Lines 64-71
-
-REQUIREMENT 2.2.A: DOM Element Selection
-- Lines 4-9
-
-REQUIREMENT 2.2.B: Event Listeners
-- Form toggle clicks: Lines 13, 19
-- Submit events: Lines 60, 86
-- Google auth clicks: Lines 121, 129
-
-REQUIREMENT 3: Code Formatting
-- N/A (general formatting)
-
-REQUIREMENT 4.A: Variables
-- const variables: Lines 62-63
-
-REQUIREMENT 4.B: Control Flow
-- if statements for validation: Lines 70-77
-
-REQUIREMENT 4.C: Functions
-- showError() function: Lines 27-33
-*/

@@ -181,6 +181,48 @@ function initializeDatabase() {
     });
 }
 
+// ========================================================================
+// TABLE 3: USERS TABLE
+// ========================================================================
+// PURPOSE: Stores user account information for authentication
+// Demonstrates: Additional table with TEXT datatypes, password storage
+// ========================================================================
+db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+        -- DATATYPE: INTEGER - Primary key for unique user identification
+        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        
+        -- DATATYPE: TEXT - User's display name
+        name TEXT NOT NULL,
+        
+        -- DATATYPE: TEXT - Email address (used as username)
+        -- UNIQUE - Validation: Each email can only have one account
+        email TEXT NOT NULL UNIQUE,
+        
+        -- DATATYPE: TEXT - Password (in real apps, this would be hashed)
+        -- For educational purposes, storing as plain text
+        password TEXT NOT NULL,
+        
+        -- DATATYPE: TEXT - Country selection from signup form
+        country TEXT,
+        
+        -- DATATYPE: TEXT - Timestamp for account creation
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        
+        -- DATATYPE: TEXT - Last login timestamp
+        last_login TEXT,
+        
+        -- DATA VALIDATION: Ensures email contains @ symbol
+        CHECK (email LIKE '%@%')
+    )
+`, (err) => {
+    if (err) {
+        console.error('Error creating users table:', err.message);
+    } else {
+        console.log('✓ Users table created with authentication support');
+    }
+});
+
 // ============================================================================
 // REQUIREMENT: (6) Populate at least part of one table using SQL code
 // ============================================================================
@@ -383,6 +425,128 @@ app.get('/api/health', (req, res) => {
         }
     });
 });
+
+
+// ============================================================================
+// USER AUTHENTICATION ENDPOINTS
+// ============================================================================
+
+// CRUD: CREATE - Register new user
+// Populates users table using form input from signup form
+app.post('/api/users/signup', (req, res) => {
+    const { name, email, password, country } = req.body;
+
+    // Check if user already exists
+    db.get('SELECT email FROM users WHERE email = ?', [email], (err, row) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+
+        if (row) {
+            res.status(400).json({ 
+                success: false, 
+                message: 'An account with this email already exists.' 
+            });
+            return;
+        }
+
+        // Insert new user
+        const sql = `
+            INSERT INTO users (name, email, password, country, created_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `;
+
+        db.run(sql, [name, email, password, country], function(err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+            } else {
+                console.log(`✓ CRUD: CREATE - New user registered: ${email}`);
+                res.json({ 
+                    success: true, 
+                    message: 'Account created successfully!',
+                    userId: this.lastID
+                });
+            }
+        });
+    });
+});
+
+// CRUD: READ - Login user (verify credentials)
+app.post('/api/users/login', (req, res) => {
+    const { email, password } = req.body;
+
+    const sql = 'SELECT user_id, name, email, country FROM users WHERE email = ? AND password = ?';
+
+    db.get(sql, [email, password], (err, user) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+
+        if (!user) {
+            res.status(401).json({ 
+                success: false, 
+                message: 'Invalid email or password.' 
+            });
+            return;
+        }
+
+        // Update last login time
+        db.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?', [user.user_id]);
+
+        console.log(`✓ CRUD: READ - User logged in: ${email}`);
+        res.json({ 
+            success: true, 
+            message: 'Login successful!',
+            user: {
+                userId: user.user_id,
+                name: user.name,
+                email: user.email,
+                country: user.country
+            }
+        });
+    });
+});
+
+// CRUD: READ - Get all users (for testing/admin purposes)
+app.get('/api/users', (req, res) => {
+    const sql = `
+        SELECT user_id, name, email, country, created_at, last_login 
+        FROM users 
+        ORDER BY created_at DESC
+    `;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            console.log(`✓ CRUD: READ - Retrieved ${rows.length} users`);
+            res.json(rows);
+        }
+    });
+});
+
+// CRUD: DELETE - Delete user account
+app.delete('/api/users/:email', (req, res) => {
+    const { email } = req.params;
+
+    const sql = 'DELETE FROM users WHERE email = ?';
+
+    db.run(sql, [email], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            console.log(`✓ CRUD: DELETE - User account deleted: ${email}`);
+            res.json({ 
+                success: true, 
+                changes: this.changes,
+                message: 'User account deleted successfully'
+            });
+        }
+    });
+});
+
 
 // ============================================================================
 // REQUIREMENT: (6) Filtering, Grouping, Aggregating, or Subqueries

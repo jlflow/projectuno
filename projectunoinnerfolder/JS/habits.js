@@ -212,3 +212,37 @@ document.addEventListener('keydown', function(e) {
 
 // Load data when page loads
 window.addEventListener('load', loadAllData);
+
+// Load all data from database when page loads
+async function loadAllData() {
+    try {
+        // Fetch habits from database
+        const response = await fetch(`${API_URL}/api/habits`);
+        const habits = await response.json();
+        
+        // Convert database format to our tracker format
+        trackerData = {};
+        
+        // Build habit names array based on column_index (0-9)
+        // Initialize with default habits first
+        habitNames = [...defaultHabits];
+        
+        habits.forEach(habit => {
+            const key = `${habit.day_number}-${habit.column_index}`;
+            trackerData[key] = habit.is_completed === 1;
+            
+            // Update habit name for this column index
+            // Only update if we have a valid column index
+            if (habit.column_index >= 0 && habit.column_index < 10) {
+                habitNames[habit.column_index] = habit.habit_name;
+            }
+        });
+        
+        renderHeaders();
+        renderTracker();
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        alert('Could not connect to database. Make sure server is running!');
+    }
+}
