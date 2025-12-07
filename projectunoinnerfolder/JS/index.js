@@ -40,7 +40,7 @@ function clearMessages() {
     successMsg.style.display = 'none';
 }
 
-// Set current logged-in user (still use localStorage for session)
+// Set current logged-in user
 function setCurrentUser(userId, name, email, country) {
     const currentUser = {
         userId: userId,
@@ -53,7 +53,9 @@ function setCurrentUser(userId, name, email, country) {
     localStorage.setItem('sanctiflow_currentUser', JSON.stringify(currentUser));
 }
 
-// Login form submission - NOW USES DATABASE
+// ============================================================================
+// LOGIN - NO CHANGES NEEDED HERE
+// ============================================================================
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     clearMessages();
@@ -89,7 +91,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Signup form submission - NOW USES DATABASE
+// ============================================================================
+// SIGNUP - UPDATED WITH HEADER INITIALIZATION
+// ============================================================================
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     clearMessages();
@@ -117,6 +121,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     }
 
     try {
+        // Step 1: Create user account
         const response = await fetch(`${API_URL}/api/users/signup`, {
             method: 'POST',
             headers: {
@@ -128,6 +133,23 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (result.success) {
+            // Step 2: Initialize default habit headers for new user
+            try {
+                await fetch(`${API_URL}/api/habit-headers/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: result.userId
+                    })
+                });
+                console.log('✓ Habit headers initialized for new user');
+            } catch (headerError) {
+                console.error('Error initializing headers:', headerError);
+                // Don't block signup if header init fails
+            }
+            
             showSuccess('Account created successfully! Redirecting to login...');
             
             setTimeout(() => {

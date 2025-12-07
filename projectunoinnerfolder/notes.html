@@ -23,19 +23,7 @@
         </div>
     </div>
 
-    <script>
-        const textarea = document.getElementById('notes-textarea');
-        
-        // Load saved notes
-        const savedNotes = localStorage.getItem('journalNotes');
-        if (savedNotes) {
-            textarea.value = savedNotes;
-        }
-
-        // Auto-save as user types
-        textarea.addEventListener('input', function() {
-            localStorage.setItem('journalNotes', this.value);
-        });
-    </script>
+    <!-- Link to external JS file -->
+    <script src="JS/notes.js"></script>
 </body>
 </html>

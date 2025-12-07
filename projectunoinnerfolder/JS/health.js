@@ -1,7 +1,22 @@
-// API URL - change port if you changed it in server.js
 const API_URL = 'http://localhost:3000';
 
-// Function to calculate score for each metric (same as before)
+// ============================================================================
+// NEW: Get current user from localStorage
+// ============================================================================
+function getCurrentUser() {
+    const userData = localStorage.getItem('sanctiflow_currentUser');
+    if (!userData) {
+        alert('Please log in first');
+        window.location.href = 'index.html';
+        return null;
+    }
+    return JSON.parse(userData);
+}
+
+// ============================================================================
+// Scoring functions (No changes)
+// ============================================================================
+
 function calculateMetricScore(value, type) {
     const val = parseFloat(value);
     
@@ -38,7 +53,6 @@ function calculateMetricScore(value, type) {
     return null;
 }
 
-// Function to get CSS class based on score (same as before)
 function getScoreClass(value, type) {
     const val = parseFloat(value);
     
@@ -75,7 +89,6 @@ function getScoreClass(value, type) {
     return '';
 }
 
-// Function to update input colors and wellness score
 function updateRowColors(row) {
     const inputs = row.querySelectorAll('input');
     const sleepInput = inputs[1];
@@ -118,15 +131,22 @@ function updateRowColors(row) {
     }
 }
 
-// Function to save data to DATABASE (not localStorage)
+// ============================================================================
+// UPDATED: Save data WITH user_id
+// ============================================================================
 async function saveData(day, rowData, wellnessScore) {
+    const user = getCurrentUser();
+    if (!user) return;
+
     try {
+        // FIXED: Send user_id in request body
         const response = await fetch(`${API_URL}/api/health`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                user_id: user.userId,  // NEW: Include user_id
                 day_number: day,
                 weight: parseFloat(rowData.weight) || null,
                 sleep_hours: parseFloat(rowData.sleep) || null,
@@ -147,10 +167,16 @@ async function saveData(day, rowData, wellnessScore) {
     }
 }
 
-// Function to load data from DATABASE (not localStorage)
+// ============================================================================
+// UPDATED: Load data WITH user_id
+// ============================================================================
 async function loadData() {
+    const user = getCurrentUser();
+    if (!user) return;
+
     try {
-        const response = await fetch(`${API_URL}/api/health`);
+        // FIXED: Send user_id as query parameter
+        const response = await fetch(`${API_URL}/api/health?user_id=${user.userId}`);
         const data = await response.json();
         
         if (!Array.isArray(data)) {
@@ -177,17 +203,19 @@ async function loadData() {
             }
         });
         
-        console.log('Data loaded successfully from database');
+        console.log(`✓ Loaded ${data.length} health entries for user ${user.userId}`);
     } catch (error) {
         console.error('Error loading data:', error);
         alert('Could not load data from database. Make sure server is running!');
     }
 }
 
-// Load data when the page loads
+// ============================================================================
+// Event listeners (No changes)
+// ============================================================================
+
 window.addEventListener('load', loadData);
 
-// Save data when any input changes
 document.querySelectorAll('.small-input').forEach(input => {
     input.addEventListener('input', function() {
         const row = this.closest('tr[data-day]');
