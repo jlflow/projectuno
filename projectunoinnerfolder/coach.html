@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sancti Coach - SanctiFlow</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="CSS/COACH.css">
+</head>
+<body>
+    <script src="JS/auth-check.js"></script>
+    
+    <div class="page-wrapper">
+        <div class="header">
+            <h2 class="main-title">SanctiFlow</h2>
+            <a href="home.html" class="back-link">← back</a>
+        </div>
+
+        <h1>SANCTI COACH</h1>
+
+        <!-- Status Indicator -->
+        <div class="status-container">
+            <div class="status-indicator">
+                <span id="chatbot-status-dot" class="status-dot"></span>
+                <span id="chatbot-status-text">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Chatbot Container -->
+        <div class="chatbot-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-chat-state">
+                    <div class="empty-icon">💬</div>
+                    <p>Ask me about habits, health, or personal growth!</p>
+                    <div class="suggestion-chips">
+                        <div class="chip" onclick="sendSuggestion('How do I build better habits?')">
+                            How do I build better habits?
+                        </div>
+                        <div class="chip" onclick="sendSuggestion('Tips for better sleep?')">
+                            Tips for better sleep?
+                        </div>
+                        <div class="chip" onclick="sendSuggestion('How to stay motivated?')">
+                            How to stay motivated?
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <form id="chatForm">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        placeholder="Ask me anything about habits, health, or growth..."
+                        required
+                    >
+                    <button type="submit" id="sendBtn">
+                        <span>Send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="JS/chatbot.js"></script>
+</body>
+</html>

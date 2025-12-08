@@ -6,7 +6,7 @@
     <title>SanctiFlow</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="CSS/HOME.css">
-    <link rel="stylesheet" href="CSS/chatbot.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <script src="JS/auth-check.js"></script>
@@ -65,74 +65,52 @@
                         </button>
                     </div>
                     <div class="button-row">
+                        <button class="nav-button" id="coach-btn" onclick="window.location.href='coach.html'">
+                            Sancti Coach
+                        </button>
+                    </div>
+                    <div class="button-row">
                         <button class="nav-button" id="about-btn" onclick="window.location.href='about.html'">
                             About Us
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Middle Section: AI Chatbot -->
-        <div class="chatbot-section">
-            <div class="chatbot-header">
-                <h2>AI Coach</h2>
-                <div class="status-indicator">
-                    <span id="chatbot-status-dot" class="status-dot"></span>
-                    <span id="chatbot-status-text">Checking...</span>
-                </div>
-            </div>
-
-            <div class="chatbot-container">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="empty-chat-state">
-                        <div class="empty-icon">💬</div>
-                        <p>Ask me about habits, health, or personal growth!</p>
-                        <div class="suggestion-chips">
-                            <div class="chip" onclick="sendSuggestion('How do I build better habits?')">
-                                How do I build better habits?
-                            </div>
-                            <div class="chip" onclick="sendSuggestion('Tips for better sleep?')">
-                                Tips for better sleep?
-                            </div>
-                            <div class="chip" onclick="sendSuggestion('How to stay motivated?')">
-                                How to stay motivated?
-                            </div>
-                        </div>
+                    
+                    <!-- Reset Button -->
+                    <div class="button-row" style="margin-top: 30px;">
+                        <button class="nav-button reset-button" id="reset-btn" onclick="confirmReset()">
+                            Reset Monthly Data
+                        </button>
                     </div>
                 </div>
-
-                <div class="chat-input-area">
-                    <form id="chatForm">
-                        <input 
-                            type="text" 
-                            id="chatInput" 
-                            placeholder="Ask me anything about habits, health, or growth..."
-                            required
-                        >
-                        <button type="submit" id="sendBtn">
-                            <span>Send</span>
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
 
-        <!-- Right Section: Dashboard Widgets (Placeholder for future) -->
-        <div class="widgets-section">
-            <div class="widget-placeholder">
-                <h3>📊 Habit Stats</h3>
-                <p>Coming soon: Visual habit tracking</p>
+        <!-- Right Section: Visuals/Graphs -->
+        <div class="visuals-section">
+            <div class="visuals-header">
+                <h2>Your Progress Dashboard</h2>
             </div>
-            
-            <div class="widget-placeholder">
-                <h3>❤️ Health Overview</h3>
-                <p>Coming soon: Health metrics graphs</p>
+
+            <!-- Visual 1: Habit Completion Over Time -->
+            <div class="visual-card">
+                <h3>📊 Habit Completion Progress</h3>
+                <canvas id="habitChart"></canvas>
+                <div class="visual-stats" id="habitStats"></div>
             </div>
-            
-            <div class="widget-placeholder">
-                <h3>📝 Recent Notes</h3>
-                <p>Coming soon: Note snapshots</p>
+
+            <!-- Visual 2: Sleep Tracking (Last 7 Days) -->
+            <div class="visual-card">
+                <h3>😴 Sleep Tracking (Last 7 Days)</h3>
+                <canvas id="sleepChart"></canvas>
+                <div class="visual-stats" id="sleepStats"></div>
+            </div>
+
+            <!-- Visual 3: Weaknesses & Areas to Improve -->
+            <div class="visual-card large">
+                <h3>⚠️ Insights & Recommendations</h3>
+                <div id="weaknessesContainer">
+                    <div class="loading">Loading insights...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -187,6 +165,6 @@
         }
     </script>
 
-    <script src="JS/chatbot.js"></script>
+    <script src="JS/home-visuals.js"></script>
 </body>
 </html>

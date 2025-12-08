@@ -475,6 +475,453 @@ app.post('/api/users/login', (req, res) => {
     });
 });
 
+
+// ============================================================================
+// ADD THESE NEW ENDPOINTS TO YOUR EXISTING server.js
+// Place them BEFORE the "SERVER STARTUP" section
+// ============================================================================
+
+// ============================================================================
+// STATISTICS & ANALYTICS ENDPOINTS
+// ============================================================================
+
+// GET habit completion statistics
+app.get('/api/stats/habits', validateUserId, (req, res) => {
+    const userId = req.userId;
+
+    const sql = `
+        SELECT 
+            day_number,
+            column_index,
+            habit_name,
+            is_completed
+        FROM habits 
+        WHERE user_id = ?
+        ORDER BY day_number ASC, column_index ASC
+    `;
+
+    db.all(sql, [userId], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            // Calculate statistics
+            const stats = calculateHabitStats(rows);
+            res.json(stats);
+        }
+    });
+});
+
+// GET health statistics (last 7 days)
+app.get('/api/stats/health', validateUserId, (req, res) => {
+    const userId = req.userId;
+
+    const sql = `
+        SELECT 
+            day_number,
+            sleep_hours,
+            water_cups,
+            steps_km,
+            mood_rating,
+            wellness_score,
+            weight
+        FROM health_entries 
+        WHERE user_id = ?
+        ORDER BY day_number DESC
+        LIMIT 31
+    `;
+
+    db.all(sql, [userId], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            const stats = calculateHealthStats(rows);
+            res.json(stats);
+        }
+    });
+});
+
+// GET weaknesses analysis
+app.get('/api/stats/weaknesses', validateUserId, (req, res) => {
+    const userId = req.userId;
+
+    // Get both habits and health data
+    const habitSql = `
+        SELECT h.habit_name, h.is_completed, h.day_number, h.column_index
+        FROM habits h
+        WHERE h.user_id = ?
+        ORDER BY h.day_number DESC
+    `;
+
+    const healthSql = `
+        SELECT day_number, sleep_hours, mood_rating, weight, wellness_score
+        FROM health_entries
+        WHERE user_id = ?
+        ORDER BY day_number DESC
+        LIMIT 31
+    `;
+
+    db.all(habitSql, [userId], (err, habitRows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+
+        db.all(healthSql, [userId], (err2, healthRows) => {
+            if (err2) {
+                res.status(500).json({ error: err2.message });
+                return;
+            }
+
+            const weaknesses = analyzeWeaknesses(habitRows, healthRows);
+            res.json(weaknesses);
+        });
+    });
+});
+
+// ============================================================================
+// RESET MONTHLY DATA ENDPOINT
+// ============================================================================
+app.delete('/api/reset/monthly', validateUserId, (req, res) => {
+    const userId = req.userId;
+
+    db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+
+        // Delete habits
+        db.run('DELETE FROM habits WHERE user_id = ?', [userId], function(err) {
+            if (err) {
+                db.run('ROLLBACK');
+                res.status(500).json({ error: err.message });
+                return;
+            }
+        });
+
+        // Delete health entries
+        db.run('DELETE FROM health_entries WHERE user_id = ?', [userId], function(err) {
+            if (err) {
+                db.run('ROLLBACK');
+                res.status(500).json({ error: err.message });
+                return;
+            }
+        });
+
+        db.run('COMMIT', (err) => {
+            if (err) {
+                db.run('ROLLBACK');
+                res.status(500).json({ error: err.message });
+            } else {
+                console.log(`✓ User ${userId}: Monthly data reset`);
+                res.json({ 
+                    success: true, 
+                    message: 'Monthly data has been reset successfully.' 
+                });
+            }
+        });
+    });
+});
+
+// ============================================================================
+// FIXED HELPER FUNCTIONS FOR STATISTICS
+// Replace the existing functions in your server.js with these
+// ============================================================================
+
+function calculateHabitStats(rows) {
+    const MAX_HABITS_PER_DAY = 10; // CRITICAL: Always calculate against 10 possible habits
+    
+    if (rows.length === 0) {
+        return {
+            totalDays: 0,
+            completionByDay: [],
+            completionByHabit: [],
+            overallCompletion: 0,
+            latestDay: 0
+        };
+    }
+
+    // Group by day
+    const dayGroups = {};
+    const habitGroups = {};
+    
+    rows.forEach(row => {
+        // By day - track which days have ANY data
+        if (!dayGroups[row.day_number]) {
+            dayGroups[row.day_number] = { 
+                total: MAX_HABITS_PER_DAY,  // ✅ FIXED: Always 10 possible habits
+                completed: 0 
+            };
+        }
+        
+        // Only count completed habits
+        if (row.is_completed) {
+            dayGroups[row.day_number].completed++;
+        }
+
+        // By habit (unchanged - this part was working)
+        const habitKey = `${row.column_index}-${row.habit_name}`;
+        if (!habitGroups[habitKey]) {
+            habitGroups[habitKey] = { 
+                name: row.habit_name, 
+                column: row.column_index,
+                total: 0, 
+                completed: 0 
+            };
+        }
+        habitGroups[habitKey].total++;
+        if (row.is_completed) {
+            habitGroups[habitKey].completed++;
+        }
+    });
+
+    // Calculate completion by day
+    const completionByDay = Object.keys(dayGroups)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .map(day => ({
+            day: parseInt(day),
+            percentage: Math.round((dayGroups[day].completed / MAX_HABITS_PER_DAY) * 100),
+            completed: dayGroups[day].completed,
+            total: MAX_HABITS_PER_DAY
+        }));
+
+    // Calculate completion by habit
+    const completionByHabit = Object.values(habitGroups)
+        .map(habit => ({
+            name: habit.name,
+            column: habit.column,
+            percentage: Math.round((habit.completed / habit.total) * 100),
+            completed: habit.completed,
+            total: habit.total
+        }))
+        .sort((a, b) => a.column - b.column);
+
+    // Overall completion - FIXED calculation
+    const totalDaysTracked = Object.keys(dayGroups).length;
+    const totalPossibleChecks = totalDaysTracked * MAX_HABITS_PER_DAY;
+    const totalCompletedChecks = Object.values(dayGroups)
+        .reduce((sum, day) => sum + day.completed, 0);
+    
+    const overallCompletion = totalPossibleChecks > 0 
+        ? Math.round((totalCompletedChecks / totalPossibleChecks) * 100) 
+        : 0;
+
+    const latestDay = Math.max(...Object.keys(dayGroups).map(d => parseInt(d)));
+
+    return {
+        totalDays: totalDaysTracked,
+        completionByDay,
+        completionByHabit,
+        overallCompletion,
+        latestDay,
+        totalCompleted: totalCompletedChecks,
+        totalPossible: totalPossibleChecks
+    };
+}
+
+// ============================================================================
+// FIXED: Analyze Weaknesses (Better Detection)
+// ============================================================================
+
+function analyzeWeaknesses(habitRows, healthRows) {
+    const weaknesses = [];
+    const MAX_HABITS_PER_DAY = 10;
+
+    // ============================================================================
+    // ANALYZE HABITS - IMPROVED LOGIC
+    // ============================================================================
+    
+    // Group habits by column/name to track across all days
+    const habitGroups = {};
+    const daysTracked = new Set();
+    
+    habitRows.forEach(row => {
+        daysTracked.add(row.day_number);
+        const key = `${row.column_index}-${row.habit_name}`;
+        if (!habitGroups[key]) {
+            habitGroups[key] = { 
+                name: row.habit_name,
+                column: row.column_index,
+                appearances: 0,
+                completed: 0 
+            };
+        }
+        habitGroups[key].appearances++;
+        if (row.is_completed) {
+            habitGroups[key].completed++;
+        }
+    });
+
+    const totalDaysTracked = daysTracked.size;
+
+    // Analyze each habit
+    Object.values(habitGroups).forEach(habit => {
+        const completion = habit.appearances > 0 
+            ? (habit.completed / habit.appearances) * 100 
+            : 0;
+        
+        // HIGH PRIORITY: Habit exists but rarely completed
+        if (completion < 40 && habit.appearances >= 3) {
+            weaknesses.push({
+                type: 'habit',
+                severity: 'high',
+                title: `"${habit.name}" Needs Attention`,
+                description: `Only ${Math.round(completion)}% completion rate (${habit.completed}/${habit.appearances} days)`,
+                recommendation: `Set a specific time or reminder for "${habit.name}"`
+            });
+        } 
+        // MEDIUM PRIORITY: Inconsistent completion
+        else if (completion < 65 && habit.appearances >= 5) {
+            weaknesses.push({
+                type: 'habit',
+                severity: 'medium',
+                title: `"${habit.name}" is Inconsistent`,
+                description: `${Math.round(completion)}% completion rate (${habit.completed}/${habit.appearances} days)`,
+                recommendation: `You're making progress! Try habit stacking with "${habit.name}"`
+            });
+        }
+        // LOW PRIORITY: Good but could be better
+        else if (completion < 85 && habit.appearances >= 7) {
+            weaknesses.push({
+                type: 'habit',
+                severity: 'low',
+                title: `"${habit.name}" Almost There`,
+                description: `${Math.round(completion)}% completion rate - you're doing well!`,
+                recommendation: `Keep up the momentum with "${habit.name}"`
+            });
+        }
+    });
+
+    // Check for missing days (days with no tracking at all)
+    if (totalDaysTracked > 0 && totalDaysTracked < 7) {
+        weaknesses.push({
+            type: 'habit',
+            severity: 'medium',
+            title: 'Limited Tracking Days',
+            description: `Only ${totalDaysTracked} days tracked so far`,
+            recommendation: 'Try to track your habits daily for better insights'
+        });
+    }
+
+    // ============================================================================
+    // ANALYZE HEALTH - UNCHANGED (this was working)
+    // ============================================================================
+    
+    if (healthRows.length >= 3) {
+        const recentSleep = healthRows.slice(0, 7);
+        const avgSleep = recentSleep.reduce((s, r) => s + (r.sleep_hours || 0), 0) / recentSleep.length;
+        
+        if (avgSleep < 6) {
+            weaknesses.push({
+                type: 'health',
+                severity: 'high',
+                title: 'Sleep Deficit',
+                description: `Average of ${avgSleep.toFixed(1)} hours per night`,
+                recommendation: 'Aim for 7-9 hours. Try setting a consistent bedtime'
+            });
+        } else if (avgSleep < 7) {
+            weaknesses.push({
+                type: 'health',
+                severity: 'medium',
+                title: 'Below Optimal Sleep',
+                description: `Average of ${avgSleep.toFixed(1)} hours per night`,
+                recommendation: 'Try adding 30 minutes more sleep time'
+            });
+        }
+
+        const recentMood = healthRows.slice(0, 7);
+        const avgMood = recentMood.reduce((s, r) => s + (r.mood_rating || 0), 0) / recentMood.length;
+        
+        if (avgMood < 2.5) {
+            weaknesses.push({
+                type: 'health',
+                severity: 'high',
+                title: 'Low Mood Pattern',
+                description: `Average mood: ${avgMood.toFixed(1)}/5`,
+                recommendation: 'Consider talking to someone or doing activities you enjoy'
+            });
+        } else if (avgMood < 3.5) {
+            weaknesses.push({
+                type: 'health',
+                severity: 'medium',
+                title: 'Mood Could Improve',
+                description: `Average mood: ${avgMood.toFixed(1)}/5`,
+                recommendation: 'Try exercise, sunlight, or social connection'
+            });
+        }
+
+        // Weight tracking
+        const recentWeight = healthRows.slice(0, 14).filter(r => r.weight);
+        if (recentWeight.length >= 5) {
+            const firstWeight = recentWeight[recentWeight.length - 1].weight;
+            const lastWeight = recentWeight[0].weight;
+            const change = lastWeight - firstWeight;
+            
+            if (Math.abs(change) > 5) {
+                weaknesses.push({
+                    type: 'health',
+                    severity: 'medium',
+                    title: 'Significant Weight Change',
+                    description: `${change > 0 ? '+' : ''}${change.toFixed(1)} lbs in 2 weeks`,
+                    recommendation: 'Monitor your diet and exercise patterns'
+                });
+            }
+        }
+    }
+
+    // ============================================================================
+    // IF NO ISSUES FOUND
+    // ============================================================================
+    
+    if (weaknesses.length === 0) {
+        weaknesses.push({
+            type: 'success',
+            severity: 'good',
+            title: 'Excellent Work! 🎉',
+            description: 'All habits are being tracked consistently',
+            recommendation: 'Keep up this amazing momentum!'
+        });
+    }
+
+    // Sort by severity (high first)
+    const severityOrder = { high: 0, medium: 1, low: 2, good: 3 };
+    weaknesses.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+    return { weaknesses };
+}
+
+// ============================================================================
+// UNCHANGED: Health stats calculation (was working correctly)
+// ============================================================================
+
+function calculateHealthStats(rows) {
+    if (rows.length === 0) {
+        return {
+            last7Days: [],
+            averageSleep: 0,
+            averageMood: 0,
+            recentEntries: []
+        };
+    }
+
+    const last7 = rows.slice(0, 7);
+    
+    const last7Days = last7.map(row => ({
+        day: row.day_number,
+        sleep: row.sleep_hours || 0,
+        mood: row.mood_rating || 0,
+        wellness: row.wellness_score || 0
+    })).reverse();
+
+    const avgSleep = last7.reduce((sum, r) => sum + (r.sleep_hours || 0), 0) / last7.length;
+    const avgMood = last7.reduce((sum, r) => sum + (r.mood_rating || 0), 0) / last7.length;
+
+    return {
+        last7Days,
+        averageSleep: Math.round(avgSleep * 10) / 10,
+        averageMood: Math.round(avgMood * 10) / 10,
+        recentEntries: rows.slice(0, 31)
+    };
+}
+
+
 // ============================================================================
 // SERVER STARTUP
 // ============================================================================
