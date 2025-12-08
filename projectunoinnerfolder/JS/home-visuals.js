@@ -53,13 +53,14 @@ async function loadHabitStats(userId) {
             return;
         }
 
-        // Create chart
+        
         const ctx = document.getElementById('habitChart').getContext('2d');
         
         if (habitChart) {
             habitChart.destroy();
         }
 
+        // LINE CHART - Best for showing trends over time
         habitChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -70,8 +71,8 @@ async function loadHabitStats(userId) {
                     borderColor: '#000',
                     backgroundColor: 'rgba(0, 0, 0, 0.1)',
                     borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
+                    tension: 0.4, // Smooth curve shows gradual progression
+                    fill: true // Area fill emphasizes cumulative progress
                 }]
             },
             options: {
@@ -96,7 +97,7 @@ async function loadHabitStats(userId) {
             }
         });
 
-        // Display summary stats
+        
         document.getElementById('habitStats').innerHTML = `
             <div class="stat-row">
                 <span>Overall Completion:</span>
@@ -133,13 +134,14 @@ async function loadHealthStats(userId) {
             return;
         }
 
-        // Create chart
+        
         const ctx = document.getElementById('sleepChart').getContext('2d');
         
         if (sleepChart) {
             sleepChart.destroy();
         }
 
+        // BAR CHART - Best for comparing discrete daily values
         sleepChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -147,10 +149,11 @@ async function loadHealthStats(userId) {
                 datasets: [{
                     label: 'Sleep Hours',
                     data: data.last7Days.map(d => d.sleep),
+                    // COLOR CODING: Instant visual feedback on sleep quality
                     backgroundColor: data.last7Days.map(d => {
-                        if (d.sleep >= 7 && d.sleep <= 9) return '#CAFFBF';
-                        if (d.sleep >= 6) return '#FDFFB6';
-                        return '#FFADAD';
+                        if (d.sleep >= 7 && d.sleep <= 9) return '#CAFFBF';// Green: Optimal
+                        if (d.sleep >= 6) return '#FDFFB6';// Yellow: Acceptable
+                        return '#FFADAD';// Red: Poor
                     }),
                     borderColor: '#000',
                     borderWidth: 1
@@ -178,7 +181,7 @@ async function loadHealthStats(userId) {
             }
         });
 
-        // Display summary stats
+       
         const sleepQuality = data.averageSleep >= 7 && data.averageSleep <= 9 
             ? 'Good' 
             : data.averageSleep >= 6 
@@ -292,7 +295,7 @@ async function confirmReset() {
 
         if (result.success) {
             alert('✓ Monthly data has been reset successfully!');
-            // Reload dashboard
+            
             location.reload();
         } else {
             alert('Error: ' + result.message);
