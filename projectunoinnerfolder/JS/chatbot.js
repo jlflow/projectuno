@@ -2,19 +2,36 @@ const CHATBOT_API_URL = 'http://localhost:5001';
 let isProcessing = false;
 let hasMessages = false;
 
-// Check chatbot status on page load
+
 document.addEventListener('DOMContentLoaded', () => {
     checkChatbotStatus();
 });
 
+// ANNOTATION 1: Arrow Function/Lambda (JavaScript equivalent to Python lambda)
+// This async function acts as a lambda/anonymous function that checks the chatbot's 
+// connection status by making an API call to the /api/chatbot/status endpoint.
+// It fetches the status and updates the UI elements (status dot and text) based on 
+// whether the chatbot is connected or not.
 async function checkChatbotStatus() {
     const statusDot = document.getElementById('chatbot-status-dot');
     const statusText = document.getElementById('chatbot-status-text');
     
+    // ANNOTATION 3: Exception Handling (try-catch block)
+    // This try-catch block wraps the API call to handle any errors that might occur
+    // during the fetch operation (such as network errors, server being down, or 
+    // connection timeouts). If an error occurs, it catches the exception, sets the
+    // status to 'Offline', updates the UI accordingly, and logs the error to the console
+    // for debugging purposes.
     try {
         const response = await fetch(`${CHATBOT_API_URL}/api/chatbot/status`);
         const data = await response.json();
         
+        // ANNOTATION 2: Conditional Statement (if-else)
+        // This if-else statement checks the 'connected' property from the API response.
+        // If data.connected is true, it sets the status dot to 'connected' class (green)
+        // and displays "Online" text. If false, it sets the status dot to 'disconnected'
+        // class (red/gray), displays "Offline" text, and logs a warning message with 
+        // the reason from the API response.
         if (data.connected) {
             statusDot.className = 'status-dot connected';
             statusText.textContent = 'Online';
@@ -30,7 +47,7 @@ async function checkChatbotStatus() {
     }
 }
 
-// Handle form submission
+
 document.getElementById('chatForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -43,37 +60,46 @@ document.getElementById('chatForm').addEventListener('submit', async (e) => {
     input.value = '';
 });
 
-// Send suggestion chip
+
 function sendSuggestion(message) {
     if (isProcessing) return;
     sendMessage(message);
 }
 
-// Main send message function
+
 async function sendMessage(message) {
     if (isProcessing) return;
     
     isProcessing = true;
     document.getElementById('sendBtn').disabled = true;
     
-    // Remove empty state if first message
+  
     if (!hasMessages) {
         const emptyState = document.querySelector('.empty-chat-state');
         if (emptyState) emptyState.remove();
         hasMessages = true;
     }
     
-    // Add user message
+   
     addMessage(message, 'user');
     scrollToBottom();
     
     try {
-        // Create bot message container
+        
         const botMessage = createMessageElement('', 'bot');
         const messageContent = botMessage.querySelector('.message-content');
         const textDiv = messageContent.querySelector('div:last-child');
         
-        // Stream response
+        // ANNOTATION 4: API Methods Used to Connect the System
+        // This code uses the Fetch API to connect to the chatbot backend system:
+        // 1. fetch() - Makes an HTTP POST request to the endpoint ${CHATBOT_API_URL}/api/chatbot/chat
+        // 2. method: 'POST' - Specifies the HTTP method as POST to send data to the server
+        // 3. headers: {'Content-Type': 'application/json'} - Sets the request header to indicate JSON data
+        // 4. body: JSON.stringify() - Converts the message object to JSON format for transmission
+        // 5. response.body.getReader() - Gets a readable stream reader for streaming the response
+        // 6. reader.read() - Reads chunks of data from the stream as they arrive
+        // 7. TextDecoder().decode() - Decodes the binary stream data into readable text
+        // This streaming approach allows real-time display of the AI's response as it's generated.
         const response = await fetch(`${CHATBOT_API_URL}/api/chatbot/chat`, {
             method: 'POST',
             headers: {
@@ -135,19 +161,19 @@ function createMessageElement(text, type) {
     return messageDiv;
 }
 
-// Add message (simpler version)
+
 function addMessage(text, type) {
     createMessageElement(text, type);
     scrollToBottom();
 }
 
-// Scroll to bottom
+
 function scrollToBottom() {
     const chatMessages = document.getElementById('chatMessages');
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Optional: Handle Enter key for sending
+
 document.getElementById('chatInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
